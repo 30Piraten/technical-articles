@@ -1,0 +1,55 @@
+components:
+  schemas:
+
+    Account:
+      oneOf:
+        - $ref: '#/components/schemas/Pending'
+        - $ref: '#/components/schemas/Verified'
+        - $ref: '#/components/schemas/Suspended'
+      discriminator:
+        propertyName: status
+        mapping:
+          PENDING: '#/components/schemas/Pending'
+          VERIFIED: '#/components/schemas/Verified'
+          SUSPENDED: '#/components/schemas/Suspended'
+
+    Pending:
+      type: object
+      required:
+        - status
+        - name
+      properties:
+        status:
+          const: PENDING
+        name:
+          type: string
+
+    Verified:
+      type: object
+      required:
+        - status
+        - name
+        - verifiedAt
+      properties:
+        status:
+          const: VERIFIED
+        name:
+          type: string
+        verifiedAt:
+          type: string
+          format: date-time
+
+    Suspended:
+      type: object
+      required:
+        - status
+        - name
+        - suspendedAt
+      properties:
+        status:
+          const: SUSPENDED
+        name:
+          type: string
+        suspendedAt:
+          type: string
+          format: date-time

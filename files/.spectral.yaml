@@ -1,0 +1,111 @@
+rules:
+
+  # ============================================================
+  # RULE 1
+  # Ensure the canonical ProblemDetails schema contains the
+  # required fields used by this API's RFC 9457 representation.
+  # ============================================================
+
+  problem-details-required-fields:
+    description: >
+      The canonical ProblemDetails schema must contain
+      type, title, status, detail, and instance.
+
+    message: >
+      ProblemDetails must define type, title, status, detail,
+      and instance.
+
+    given: $.components.schemas.ProblemDetails
+
+    severity: error
+
+    then:
+      - field: required
+        function: schema
+        functionOptions:
+          schema:
+            type: array
+            contains:
+              const: type
+
+      - field: required
+        function: schema
+        functionOptions:
+          schema:
+            type: array
+            contains:
+              const: title
+
+      - field: required
+        function: schema
+        functionOptions:
+          schema:
+            type: array
+            contains:
+              const: status
+
+      - field: required
+        function: schema
+        functionOptions:
+          schema:
+            type: array
+            contains:
+              const: detail
+
+      - field: required
+        function: schema
+        functionOptions:
+          schema:
+            type: array
+            contains:
+              const: instance
+
+
+  # ============================================================
+  # RULE 2
+  # Every 4xx/5xx response must reference the canonical
+  # ProblemDetails schema.
+  # ============================================================
+
+  error-response-problem-details:
+    description: >
+      Every 4xx and 5xx response must reference the
+      canonical ProblemDetails schema.
+
+    message: >
+      All 4xx and 5xx responses must use
+      #/components/schemas/ProblemDetails.
+
+    given: "$.paths[*][*].responses[?(@property >= '400' && @property < '600')]"
+
+    severity: error
+
+    then:
+      field: content.application/problem+json.schema.$ref
+      function: pattern
+
+      functionOptions:
+        match: "^#/components/schemas/ProblemDetails$"
+
+
+  # ============================================================
+  # RULE 3
+  # Every 4xx/5xx response must use the RFC 9457 media type.
+  # ============================================================
+
+  problem-details-media-type:
+    description: >
+      Every 4xx and 5xx response must use
+      application/problem+json.
+
+    message: >
+      Error responses must use the RFC 9457 media type
+      application/problem+json.
+
+    given: "$.paths[*][*].responses[?(@property >= '400' && @property < '600')].content"
+
+    severity: error
+
+    then:
+      field: application/problem+json
+      function: truthy
