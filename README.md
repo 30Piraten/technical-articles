@@ -2,7 +2,7 @@
 
 TODO:
 
- * Article 1: Contract-First Archotecture: Governing Microservices Boundaries with OpenAPI 3.2 and Spectral
+ * Article 1: (IN PROGRESS) Contract-First Archotecture: Governing Microservices Boundaries with OpenAPI 3.2 and Spectral
    * Target Audience: API Architects and Senior Developers.
    * Core Concept: declarative OpenAPI specs, enforcing linting rules via CLI, and handling polymorphic payloads (oneOf/anyOf).
  * Article 2: Building Idempotent APIs: Preventing Duplicate Charges with Idempotency Keys
