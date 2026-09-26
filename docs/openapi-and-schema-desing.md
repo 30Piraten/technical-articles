@@ -1,4 +1,4 @@
-# Contract-First Archotecture: Governing Microservices Boundaries with OpenAPI 3.2 and Spectral
+# Contract-First Architecture: Governing Microservices Boundaries with OpenAPI 3.2 and Spectral
 
 ## Introduction:
 
