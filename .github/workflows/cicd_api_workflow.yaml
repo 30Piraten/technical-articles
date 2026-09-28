@@ -15,4 +15,4 @@ jobs:
         run: npm install -g @stoplight/spectral-cli
 
       - name: Lint OpenAPI contract
-        run: run: spectral lint enterprise_payment_contract.yaml --ruleset .spectral.yaml --severity=warn
+        run: spectral lint enterprise_payment_contract.yaml --ruleset .spectral.yaml --severity=warn
