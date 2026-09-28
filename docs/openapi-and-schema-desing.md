@@ -737,7 +737,15 @@ GitHub Actions does not inherently block the merge. The workflow produces a fail
 Lete push the modified (broken) OAS contract again:
 
 ```bash
+Run spectral lint enterprise_payment_contract.yaml --ruleset .spectral.yaml --fail-severity=warn
 
+/home/runner/work/technical-articles/technical-articles/enterprise_payment_contract.yaml
+  37:23  error  error-response-problem-details   All 4xx and 5xx responses must use #/components/schemas/ProblemDetails.  paths./v1/payments/{paymentId}/settle.post.responses[409].content.application/problem+json.schema.$ref
+  37:23  error  invalid-ref                      '#/componente/schemas/Errors' does not exist                             paths./v1/payments/{paymentId}/settle.post.responses[409].content.application/problem+json.schema.$ref
+ 185:16  error  problem-details-required-fields  ProblemDetails must define type, title, status, detail, and instance.    components.schemas.ProblemDetails.required
+
+✖ 3 problems (3 errors, 0 warnings, 0 infos, 0 hints)
+Error: Process completed with exit code 1.
 
 ```
 
