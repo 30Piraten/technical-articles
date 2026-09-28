@@ -1,6 +1,6 @@
-Contract-First Architecture: Governing Microservice Boundaries with OpenAPI 3.2 and Spectral
+# Contract-First Architecture: Governing Microservice Boundaries with OpenAPI 3.2 and Spectral
 
-Introduction
+## Introduction
 
 In a distributed system, an API contract is more than documentation.
 
