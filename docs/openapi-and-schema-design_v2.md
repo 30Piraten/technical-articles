@@ -502,18 +502,18 @@ Imagine three regional services returning the same underlying failure in differe
                            Payment Service
 
 
+```mermaid
 flowchart TD
     Client["Client"]
     Gateway["API Gateway"]
 
-    ZA["South Africa<br/>Region"]
-    EU["Europe<br/>Region"]
-    US["US<br/>Region"]
+    ZA["South Africa Region"]
+    EU["Europe Region"]
+    US["US Region"]
 
     Payment["Payment Service"]
 
     Client --> Gateway
-
     Gateway --> ZA
     Gateway --> EU
     Gateway --> US
@@ -522,6 +522,7 @@ flowchart TD
     EU --> Payment
     US --> Payment
 
+```
 
 
 South Africa might return:
