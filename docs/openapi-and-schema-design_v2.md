@@ -10,15 +10,15 @@ When an implementation and its contract drift apart, consumers begin to depend o
 
 This is one reason contract-first API design is useful.
 
-In a contract-first approach, the API specification is designed before the implementation. The specification becomes a shared artifact that developers, consumers, reviewers, and tooling can reason about.
+In a contract-first approach, the API specification is designed before the implementation. The specification becomes a shared scope that developers, consumers, reviewers, and tooling can reason about.
 
 This article explores how OpenAPI 3.2 can be used to model strict API contracts, represent state-dependent resources, standardize error responses with RFC 9457 Problem Details, and enforce API conventions with Spectral and GitHub Actions.
 
-The goal is not to use every feature OpenAPI provides.
+The aim is not to use every feature OpenAPI provides.
 
-The goal is to make important assumptions explicit and make repeatable rules enforceable.
+But to make important assumptions explicit and make repeatable rules enforceable.
 
-What this article covers
+## What this article covers
 
 - Strict schema modeling with OpenAPI 3.2
 - Modeling state-dependent resources with "oneOf" and "allOf"
@@ -29,7 +29,7 @@ What this article covers
 - Turning API conventions into Spectral rules
 - Running those rules locally and in CI/CD
 
-Prerequisites
+## Prerequisites
 
 You should have a basic understanding of:
 
@@ -44,11 +44,11 @@ The examples use OpenAPI 3.2.1.
 
 ---
 
-1. Contract-First Architecture
+## 1. Contract-First Architecture
 
 There are two common approaches to designing APIs: code-first and contract-first.
 
-In a code-first workflow, developers begin with implementation and generate or derive the API specification from the resulting code.
+In a code-first design, developers begin with implementation and generate or derive the API specification from the resulting code.
 
 In a contract-first workflow, the API interface is defined before implementation.
 
