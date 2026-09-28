@@ -56,12 +56,16 @@ Neither approach eliminates the need for business logic. The difference is where
 
 Consider a service that exposes a withdrawal operation:
 
+```bash
 POST /accounts/005/withdraw
+
+```
 
 A code-first implementation might define the request structure inside the application and expose the resulting endpoint.
 
 A contract-first design starts by describing the request:
 
+```yaml
 schema:
   type: object
   properties:
@@ -77,6 +81,7 @@ schema:
   required:
     - amount
     - currency
+```
 
 The contract now establishes several constraints:
 
@@ -87,14 +92,15 @@ The contract now establishes several constraints:
 
 The API boundary therefore rejects representations that violate these constraints before they reach the deeper application logic.
 
-That distinction matters.
+This distinction matters.
 
-A schema can constrain the representation of data. It cannot, by itself, determine whether a business operation is permitted.
+A schema can limit the misrepresentation of data. It cannot, by itself, determine whether a business operation or logic is permitted.
 
-For example, a schema can establish that a withdrawal contains a valid amount. The application must still determine whether the account has sufficient funds, whether the account is active, and whether the withdrawal is permitted at that point in the account lifecycle.
+For example, a schema can establish that a withdrawal contains a valid amount. The application must still determine whether the account has sufficient funds, whether the account is active, and whether the withdrawal is permitted at the point of request.
 
 This gives us a useful separation:
 
+```bash
 API contract
      │
      ├── What does valid data look like?
@@ -112,35 +118,44 @@ Application logic
      ▼
 Domain state transition
 
-The contract establishes the boundary.
+```
+
+The contract establishes the scope.
 
 The application establishes the behavior.
 
 ---
 
-2. Strict Schema Modeling
+## 2. Strict Schema Modeling
 
 Strict schema modeling helps make the set of valid API representations explicit.
 
 Consider an account resource:
 
+```json
 {
   "accountStatus": "active",
   "balance": 50000,
   "currency": "ZAR"
 }
 
+```
+
 This representation contains state that may influence what operations the client can perform.
 
-If an API accepts an unconstrained object:
+If an API accepts a poorly defined object:
 
+```yaml
 schema:
   type: object
 
-the contract says very little about what constitutes a valid instance.
+```
+
+the contract says very little about what makes up a valid instance.
 
 A stricter schema can define the expected structure:
 
+```yaml
 type: object
 properties:
   accountStatus:
@@ -166,39 +181,45 @@ required:
   - balance
   - currency
 
+```
+
 Now the API contract describes a much smaller set of valid representations.
 
 This is useful because downstream consumers no longer have to infer the shape of the resource from examples or implementation behavior.
 
 The important principle is:
 
-«A strict schema should express meaningful domain constraints, not merely add keywords for the sake of strictness.»
+> A strict schema should express meaningful domain constraints, not merely add keywords for the sake of strictness.
 
 ---
 
-3. Modeling State With Polymorphism
+## 3. Modeling State With Polymorphism
 
 Some resources do not have the same representation in every state.
 
-Consider an account that can be:
+An account can be:
 
+```yaml
 Account
 ├── Pending
 ├── Verified
 └── Suspended
+
+```
 
 Each state may have different required properties.
 
 For example:
 
 - A pending account may require a name.
-- A verified account may additionally require "verifiedAt".
-- A suspended account may additionally require "suspendedAt".
+- A verified account may also require "verifiedAt".
+- A suspended account may addtionally require "suspendedAt".
 
 OpenAPI supports composition through JSON Schema keywords such as "oneOf" and "allOf".
 
 A simplified model looks like this:
 
+```yaml
 components:
   schemas:
 
@@ -265,6 +286,8 @@ components:
             - name
             - suspendedAt
 
+```
+
 The model separates common properties from state-specific properties.
 
 "AccountBase" contains information common to all states.
@@ -273,7 +296,7 @@ The model separates common properties from state-specific properties.
 
 "oneOf" then defines the possible representations of "Account".
 
-What "oneOf" does
+What "oneOf" does:
 
 "oneOf" requires the instance to validate against exactly one of the listed schemas.
 
@@ -281,25 +304,31 @@ That makes it useful when the states represent mutually exclusive variants.
 
 For example:
 
+```yaml
 Account:
   oneOf:
     - $ref: '#/components/schemas/Pending'
     - $ref: '#/components/schemas/Verified'
     - $ref: '#/components/schemas/Suspended'
 
+```
+
 A payload should therefore match one and only one of those alternatives.
 
-What "allOf" does
+What "allOf" does: 
 
 "allOf" combines schemas.
 
-In the example above:
+This example:
 
+```yaml
 Verified:
   allOf:
     - $ref: '#/components/schemas/AccountBase'
     - type: object
       ...
+
+```
 
 means that a verified account must satisfy both the base schema and the additional verified-account schema.
 
@@ -307,16 +336,15 @@ This is useful when multiple states share a common structure but add different r
 
 ---
 
-4. The Role of "discriminator"
+## 4. The Role of "discriminator"
 
-A common misconception is that "discriminator" performs the validation.
-
-It does not.
+A common misconception is that "discriminator" performs the validation. It does not.
 
 OpenAPI 3.2.1 defines the discriminator as a hint that helps identify which schema is expected to validate a polymorphic payload. It does not change the validation outcome.
 
-In this example:
+In this YAML snippet:
 
+```yaml
 discriminator:
   propertyName: status
   mapping:
@@ -324,12 +352,15 @@ discriminator:
     VERIFIED: '#/components/schemas/Verified'
     SUSPENDED: '#/components/schemas/Suspended'
 
+```
+
 the "status" property tells consumers which schema corresponds to the payload.
 
 The actual validation constraint still comes from "oneOf".
 
 This distinction is important:
 
+```bash
 oneOf
   │
   └── defines the validation alternatives
@@ -338,13 +369,15 @@ discriminator
   │
   └── helps identify the expected alternative
 
+```
+
 A useful rule is:
 
-«Use "discriminator" when it improves the representation, serialization, deserialization, or consumer experience of a polymorphic model. Do not introduce it simply because the model contains multiple schemas.»
+> Use "discriminator" when it improves the representation, serialization, deserialization, or consumer experience of a polymorphic model. Do not introduce it simply because the model contains multiple schemas.
 
 ---
 
-5. Schema Validation Is Not Domain Logic
+## 5. Schema Validation Is Not Domain Logic
 
 Strict schemas can describe valid representations of domain state.
 
@@ -352,6 +385,7 @@ They cannot, by themselves, enforce every state transition.
 
 For example:
 
+```yaml
 Verified:
   allOf:
     - $ref: '#/components/schemas/AccountBase'
@@ -363,43 +397,52 @@ Verified:
       required:
         - verifiedAt
 
+```
+
 The following representation is invalid:
 
+```json
 {
   "status": "VERIFIED"
 }
+
+```
 
 because "verifiedAt" is required by the "Verified" schema.
 
 This representation satisfies the schema:
 
+```json
 {
   "status": "VERIFIED",
   "verifiedAt": "2026-09-22T10:30:00Z"
 }
 
+```
+
 But schema validation still does not answer a different question:
 
-«Was this account actually allowed to transition from "PENDING" to "VERIFIED"?»
+> Was this account actually allowed to transition from "PENDING" to "VERIFIED"?
 
 That decision belongs to the application.
 
 The distinction can be summarized as:
 
-Concern| Responsible layer
-Data type| Schema
-Required fields| Schema
-Allowed values| Schema
-Representation of a state| Schema
-Whether a transition is permitted| Application/domain logic
-Authorization| Application/security layer
-Database transaction| Application/data layer
+| Concern          | Responsible layer
+| -----------------|:-----------------------------------------:|
+| Data type        | Schema                                    |
+| Required fields  | Schema                                    |
+| Allowed values   | Schema                                    |
+| Representation of a state| Schema                            |
+| Whether a transition is permitted | Application/domain logic |
+| Authorization    | Application/security layer                |
+| Database transaction| Application/data layer                 |
 
 This boundary is important because an API specification should not be treated as a replacement for domain logic.
 
 ---
 
-6. OpenAPI 3.2 and JSON Schema
+## 6. OpenAPI 3.2 and JSON Schema
 
 OpenAPI 3.2.1 defines the Schema Object as a superset of JSON Schema Draft 2020-12. Unless OpenAPI adds specific semantics, Schema Object keywords follow JSON Schema behavior.
 
@@ -407,12 +450,15 @@ This provides a much richer schema vocabulary than treating an API specification
 
 For example:
 
+```yaml
 {
   "type": "payment",
   "amount": 50000,
   "currency": "ZAR",
   "metadata": {}
 }
+
+```
 
 can be modeled using constraints that describe what constitutes a valid instance.
 
