@@ -677,7 +677,7 @@ Simple Github Actions workflow:
 
 ```yaml
 
-name: API Contract Governance
+name: API Contract
 
 on:
   pull_request:
@@ -694,7 +694,7 @@ jobs:
         run: npm install -g @stoplight/spectral-cli
 
       - name: Lint OpenAPI contract
-        run: spectral lint ddd_modified_payment.yaml
+        run: spectral lint enterprise_payment_contract.yaml --ruleset .spectral.yaml --fail-severity=warn
 ```
 
 Architecture:
