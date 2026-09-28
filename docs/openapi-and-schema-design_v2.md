@@ -100,24 +100,25 @@ For example, a schema can establish that a withdrawal contains a valid amount. T
 
 This gives us a useful separation:
 
-```bash
-API contract
-     │
-     ├── What does valid data look like?
-     │
-     ▼
-Schema validation
-     │
-     ├── Does the request have a valid representation?
-     │
-     ▼
-Application logic
-     │
-     ├── Is the operation permitted?
-     │
-     ▼
-Domain state transition
+```mermaid
+flowchart TD
+    Contract["API contract"]
+    ContractQuestion["What does valid data look like?"]
 
+    Schema["Schema validation"]
+    SchemaQuestion["Does the request have a valid representation?"]
+
+    Application["Application logic"]
+    ApplicationQuestion["Is the operation permitted?"]
+
+    Domain["Domain state transition"]
+
+    Contract --> ContractQuestion
+    ContractQuestion --> Schema
+    Schema --> SchemaQuestion
+    SchemaQuestion --> Application
+    Application --> ApplicationQuestion
+    ApplicationQuestion --> Domain
 ```
 
 The contract establishes the scope.
@@ -592,17 +593,15 @@ We can now combine the concepts.
 
 Suppose a payment service has three lifecycle states:
 
-UNSETTLED
-    │
-    │ POST /settle
-    ▼
-SETTLED
+```mermaid
+flowchart TD
+    Unsettled["UNSETTLED"]
+    Settled["SETTLED"]
+    Failed["FAILED"]
 
-UNSETTLED
-    │
-    │ failure
-    ▼
-FAILED
+    Unsettled -->|"POST /settle"| Settled
+    Unsettled -->|"failure"| Failed
+```
 
 The API contract can describe the representations of those states while application logic controls whether a transition is permitted.
 
@@ -687,25 +686,19 @@ flowchart TD
 
 This separation gives each layer a clear responsibility:
 
-OpenAPI
-  ↓
-Defines the interface
+```mermaid
+flowchart TD
+    OpenAPI["OpenAPI<br/>Defines the interface"]
+    Schema["Schema<br/>Defines valid representations"]
+    Application["Application<br/>Enforces business rules"]
+    Domain["Domain logic<br/>Controls state transitions"]
+    ProblemDetails["Problem Details<br/>Standardizes failure representation"]
 
-Schema
-  ↓
-Defines valid representations
-
-Application
-  ↓
-Enforces business rules
-
-Domain logic
-  ↓
-Controls state transitions
-
-Problem Details
-  ↓
-Standardizes failure representation
+    OpenAPI --> Schema
+    Schema --> Application
+    Application --> Domain
+    Domain --> ProblemDetails
+```
 
 For example:
 
@@ -774,15 +767,19 @@ we can encode the requirement as an executable rule.
 
 This changes the workflow:
 
-Written convention
-       ↓
-Spectral rule
-       ↓
-Automated validation
-       ↓
-Developer feedback
-       ↓
-CI/CD enforcement
+```mermaid
+flowchart TD
+    Convention["Written convention"]
+    Rule["Spectral rule"]
+    Validation["Automated validation"]
+    Feedback["Developer feedback"]
+    CICD["CI/CD enforcement"]
+
+    Convention --> Rule
+    Rule --> Validation
+    Validation --> Feedback
+    Feedback --> CICD
+```
 
 The repository contains a Spectral ruleset:
 
@@ -862,25 +859,19 @@ problem-details-required-fields:
 
 The rule has four important concepts:
 
-given
-  ↓
-WHERE does the rule apply?
-
-then
-  ↓
-WHAT must be true?
-
-function
-  ↓
-HOW is the condition evaluated?
-
-severity
-  ↓
-WHAT happens when it fails?
+```mermaid
+flowchart TD
+    Given["given"] --> Where["WHERE does the rule apply?"]
+    Where --> Then["then"]
+    Then --> What["WHAT must be true?"]
+    What --> Function["function"]
+    Function --> How["HOW is the condition evaluated?"]
+    How --> Severity["severity"]
+    Severity --> Failure["WHAT happens when it fails?"]
+```
 
 This is a useful mental model when reading or writing Spectral rules.
 
----
 
 11. Rule 2: Enforce the Error Schema Across the API
 
@@ -910,25 +901,19 @@ error-response-problem-details:
 
 The JSONPath expression determines what Spectral examines.
 
-$.paths
-    │
-    └── every API path
+```mermaid
+flowchart TD
+    Paths["$.paths<br/>API paths"]
+    PathItems["[*]<br/>Path items"]
+    Operations["[*]<br/>Operations"]
+    Responses[".responses<br/>Responses"]
+    ErrorResponses["[?(@property >= '400' && @property < '600')]<br/>4xx and 5xx responses"]
 
-[*]
-    │
-    └── every path item
-
-[*]
-    │
-    └── every operation
-
-.responses
-    │
-    └── every response
-
-[?(@property >= '400' && @property < '600')]
-    │
-    └── every 4xx and 5xx response
+    Paths --> PathItems
+    PathItems --> Operations
+    Operations --> Responses
+    Responses --> ErrorResponses
+```
 
 The rule then checks:
 
@@ -943,7 +928,6 @@ and requires that reference to resolve to:
 
 This is a useful distinction between defining a standard and enforcing its adoption.
 
----
 
 12. Rule 3: Enforce the Media Type
 
@@ -974,21 +958,19 @@ problem-details-media-type:
 
 The three rules now enforce different layers of the same policy:
 
-Rule 1
-  ↓
-Is the canonical ProblemDetails schema complete?
+```mermaid
+flowchart TD
+    Rule1["Rule 1"] --> Check1["Is the canonical ProblemDetails schema complete?"]
+    Check1 --> Rule2["Rule 2"]
 
-Rule 2
-  ↓
-Do error responses reference that schema?
+    Rule2 --> Check2["Do error responses reference that schema?"]
+    Check2 --> Rule3["Rule 3"]
 
-Rule 3
-  ↓
-Do error responses use the correct media type?
+    Rule3 --> Check3["Do error responses use the correct media type?"]
+```
 
 This is where documentation becomes governance.
 
----
 
 13. Running Spectral Locally
 
@@ -1037,17 +1019,20 @@ The important part is not the error message itself.
 
 It is the feedback loop:
 
-Developer changes contract
-          ↓
-Spectral evaluates contract
-          ↓
-Rule violation detected
-          ↓
-Developer receives immediate feedback
-          ↓
-Contract is corrected
+```mermaid
+flowchart TD
+    Developer["Developer changes contract"]
+    Spectral["Spectral evaluates contract"]
+    Violation["Rule violation detected"]
+    Feedback["Developer receives immediate feedback"]
+    Corrected["Contract is corrected"]
 
----
+    Developer --> Spectral
+    Spectral --> Violation
+    Violation --> Feedback
+    Feedback --> Corrected
+    Corrected --> Developer
+```
 
 14. Enforcing the Contract in CI/CD
 
@@ -1081,32 +1066,34 @@ jobs:
 
 The workflow creates another validation boundary:
 
-Developer
-    │
-    ▼
-Spectral CLI
-    │
-    ▼
-Local feedback
-    │
-    ▼
-Git commit
-    │
-    ▼
-Pull request
-    │
-    ▼
-GitHub Actions
-    │
-    ▼
-Spectral
-    │
-    ├───────────────┐
-    ▼               ▼
-  PASS             FAIL
-    │               │
-    ▼               ▼
-Continue         Fix contract
+```mermaid
+flowchart TD
+    Developer["Developer"]
+    CLI["Spectral CLI"]
+    Feedback["Local feedback"]
+    Commit["Git commit"]
+    PR["Pull request"]
+    Actions["GitHub Actions"]
+    Spectral["Spectral"]
+
+    Pass["PASS"]
+    Fail["FAIL"]
+    Continue["Continue"]
+    Fix["Fix contract"]
+
+    Developer --> CLI
+    CLI --> Feedback
+    Feedback --> Commit
+    Commit --> PR
+    PR --> Actions
+    Actions --> Spectral
+
+    Spectral --> Pass
+    Spectral --> Fail
+
+    Pass --> Continue
+    Fail --> Fix
+```
 
 GitHub Actions itself does not automatically prevent a merge.
 
@@ -1132,25 +1119,23 @@ The value of this approach is not the number of OpenAPI features used.
 
 The value comes from connecting several layers of engineering practice.
 
-API design
-    │
-    ▼
-OpenAPI contract
-    │
-    ▼
-Schema constraints
-    │
-    ▼
-Domain state model
-    │
-    ▼
-Standardized error representation
-    │
-    ▼
-Spectral governance
-    │
-    ▼
-CI/CD enforcement
+```mermaid
+flowchart TD
+    API["API design"]
+    OpenAPI["OpenAPI contract"]
+    Schema["Schema constraints"]
+    Domain["Domain state model"]
+    Errors["Standardized error representation"]
+    Spectral["Spectral governance"]
+    CICD["CI/CD enforcement"]
+
+    API --> OpenAPI
+    OpenAPI --> Schema
+    Schema --> Domain
+    Domain --> Errors
+    Errors --> Spectral
+    Spectral --> CICD
+```
 
 Each layer addresses a different problem.
 
