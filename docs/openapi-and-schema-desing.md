@@ -611,4 +611,143 @@ problem-details-media-type:
 ```
 
 TODO:
-- what is rule 3 doing? 
+- what is rule 3 doing?
+
+
+## Spectral CLI and CICD Workflow
+
+Now that we have a defined OAS 3.2 `enterprise payment contract` definition alongside a spectral ruleset. We can apply the ruleset against the specification.
+
+First, install Spectral CLI from your terminal:
+
+```bash
+npm install -g @stoplight/spectral-cli
+
+```
+
+Run the spectral ruleset against the enterprise contract:
+
+```bash
+spectral lint enterprise_payment.yaml --fail-severity=warn
+
+```
+
+Notice that running this command produces no errors. But what if break or modify the contract. Say, instead of `#/components/schemas/ProblemDetails`, you have: `#/components/schemas/ProblemErrors`? 
+
+Lets run the command again:
+
+```bash
+spectral lint enterprise_payment.yaml --fail-severity=warn
+
+```
+
+This returns:
+
+```bash
+
+.../home/technical-articles/files/enterprise_payment_contract.yaml
+  37:23  error  error-response-problem-details   All 4xx and 5xx responses must use #/components/schemas/ProblemDetails.  paths./v1/payments/{paymentId}/settle.post.responses[409].content.application/problem+json.schema.$ref
+  37:23  error  invalid-ref                      '#/componente/schemas/Errors' does not exist                             paths./v1/payments/{paymentId}/settle.post.responses[409].content.application/problem+json.schema.$ref
+ 185:16  error  problem-details-required-fields  ProblemDetails must define type, title, status, detail, and instance.    components.schemas.ProblemDetails.required
+
+```
+
+This returns the errors from the ruleset we defined earlier.
+
+
+### CICD Workflow
+
+We can run this ruleset automatically using Github Actions agaisnt a PR to catxh any and all errors bwfore a merge is done. 
+
+
+Repository:
+
+```bash
+
+technical-articles/
+├── ddd_modified_payment.yaml
+├── .spectral.yaml
+└── .github/
+    └── workflows/
+        └── api-governance.yml
+```
+
+Simple Github Actions workflow: 
+
+
+```yaml
+
+name: API Contract Governance
+
+on:
+  pull_request:
+
+jobs:
+  spectral:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Spectral
+        run: npm install -g @stoplight/spectral-cli
+
+      - name: Lint OpenAPI contract
+        run: spectral lint ddd_modified_payment.yaml
+```
+
+Architecture:
+
+```bash
+
+Developer
+    │
+    ▼
+   CLI
+    │
+    │ spectral lint
+    ▼
+Local feedback
+    │
+    ▼
+Git commit
+    │
+    ▼
+Pull Request
+    │
+    ▼
+GitHub Actions
+    │
+    ▼
+Spectral
+    │
+    ├───────────────┐
+    ▼               ▼
+ PASS              FAIL
+    │               │
+    ▼               ▼
+Merge          Fix contract
+
+```
+
+GitHub Actions does not inherently block the merge. The workflow produces a failed check; repository branch-protection rules can require that check to pass before the PR can be merged.
+
+
+Lete push the modified (broken) OAS contract again:
+
+```bash
+
+
+```
+
+Governance becomes significantly more valuable when the same executable rules operate at both the developer boundary and the repository boundary.
+
+
+## Conclusion
+
+The goal is to treat your OpenAPI specification as the interface between clients and services. The contract defines the structures, states, operations, responses, and reusable components that form the API boundary. By applying OpenAPI 3.2's JSON Schema alignment and constructs such as oneOf, allOf, and discriminator where they genuinely express the domain model you can build a robust contract specification for a microservuce architecture. The objective isn't to use every feature. It's to make valid representations and conditions explicit.
+
+You can also use RFC 9457 Problem Details for a consistent machine-readable error representation. Your API's HTTP status communicates the broad outcome; the Problem Details payload provides structured information about the specific problem. Turn repeatable architectural requirements into Spectral rules. Instead of relying exclusively on a reviewer to notice contract drift, make the requirement executable:
+
+A strong API architecture is not merely documented. It is modeled precisely, validated mechanically, and continuously enforced.
