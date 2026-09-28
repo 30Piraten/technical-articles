@@ -428,7 +428,7 @@ That decision belongs to the application.
 
 The distinction can be summarized as:
 
-| Concern          | Responsible layer
+| Concern          | Responsible layer                         |
 | -----------------|:-----------------------------------------:|
 | Data type        | Schema                                    |
 | Required fields  | Schema                                    |
@@ -488,18 +488,18 @@ HTTP status codes communicate the broad outcome of an HTTP request, but they do 
 
 Imagine three regional services returning the same underlying failure in different formats:
 
-                       Client
-                         │
-                    API Gateway
-                         │
+                                Client
+                                  │
+                             API Gateway
+                                  │
           ┌──────────────┼──────────────┐
-          ▼              ▼              ▼
-     South Africa      Europe           US
-       Region          Region         Region
-          │              │              │
+          ▼                      ▼                      ▼
+     South Africa              Europe                    US
+       Region                  Region                   Region
+          │                      │                      │
           └──────────────┼──────────────┘
-                         ▼
-                  Payment Service
+                                  ▼
+                           Payment Service
 
 South Africa might return:
 
