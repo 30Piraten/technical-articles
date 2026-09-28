@@ -677,7 +677,7 @@ Simple Github Actions workflow:
 
 ```yaml
 
-name: API Contract Governance
+name: API Contract
 
 on:
   pull_request:
