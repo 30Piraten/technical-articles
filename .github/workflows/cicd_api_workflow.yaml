@@ -1,4 +1,4 @@
-name: API Contract
+name: API Contract 
 
 on:
   pull_request:
