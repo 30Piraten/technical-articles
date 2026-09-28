@@ -1,4 +1,4 @@
-name: API Contract 
+name: API Contract Governance
 
 on:
   pull_request:
@@ -15,4 +15,4 @@ jobs:
         run: npm install -g @stoplight/spectral-cli
 
       - name: Lint OpenAPI contract
-        run: spectral lint enterprise_payment_contract.yaml --severity=warn
+        run: spectral lint files/enterprise_payment_contract.yaml --ruleset files/.spectral.yaml --severity=warn
