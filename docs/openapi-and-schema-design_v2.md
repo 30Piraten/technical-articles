@@ -488,20 +488,6 @@ HTTP status codes communicate the broad outcome of an HTTP request, but they do 
 
 Imagine three regional services returning the same underlying failure in different formats:
 
-                                Client
-                                  │
-                             API Gateway
-                                  │
-          ┌──────────────┼──────────────┐
-          ▼                      ▼                      ▼
-     South Africa              Europe                    US
-       Region                  Region                   Region
-          │                      │                      │
-          └──────────────┼──────────────┘
-                                  ▼
-                           Payment Service
-
-
 ```mermaid
 flowchart TD
     Client["Client"]
@@ -523,7 +509,6 @@ flowchart TD
     US --> Payment
 
 ```
-
 
 South Africa might return:
 
@@ -662,33 +647,43 @@ paths:
 
 The resulting flow looks like this:
 
-                         API CONTRACT
-                              │
-                              ▼
-                    Payment state model
-                              │
-               ┌──────────────┼──────────────┐
-               ▼              ▼              ▼
-           UNSETTLED        SETTLED        FAILED
-               │
-               │ POST /settle
-               ▼
-         ┌──────────────┐
-         │ Domain logic │
-         └──────────────┘
-               │
-          ┌────┴────┐
-          ▼         ▼
-       Success    Failure
-          │         │
-          ▼         ▼
-         200     409 / 422 / 503
-                    │
-                    ▼
-        application/problem+json
-                    │
-                    ▼
-             ProblemDetails
+ ```mermaid
+flowchart TD
+    Contract["API Contract"]
+    State["Payment state model"]
+
+    Unsettled["UNSETTLED"]
+    Settled["SETTLED"]
+    Failed["FAILED"]
+
+    Domain["Domain logic"]
+
+    Success["Success"]
+    Failure["Failure"]
+
+    Status200["200"]
+    StatusError["409 / 422 / 503"]
+
+    ProblemType["application/problem+json"]
+    ProblemDetails["ProblemDetails"]
+
+    Contract --> State
+
+    State --> Unsettled
+    State --> Settled
+    State --> Failed
+
+    Unsettled -->|"POST /settle"| Domain
+
+    Domain --> Success
+    Domain --> Failure
+
+    Success --> Status200
+    Failure --> StatusError
+
+    StatusError --> ProblemType
+    ProblemType --> ProblemDetails
+```
 
 This separation gives each layer a clear responsibility:
 
