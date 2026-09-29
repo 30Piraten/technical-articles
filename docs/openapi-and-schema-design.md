@@ -342,9 +342,9 @@ discriminator:
 
 the "status" property tells consumers which schema corresponds to the payload.
 
-The actual validation constraint still comes from "oneOf".
+The actual validation still comes from "oneOf".
 
-The distinction becomes:
+The difference becomes clear:
 
 ```bash
 oneOf
@@ -768,7 +768,7 @@ technical-articles/
         └── cicd_api_workflow.yaml
 ```
 
-Click [spectral ruleset](../.spectral.yaml) for complete rules.
+Click [spectral ruleset](../files/.spectral.yaml) for complete rules.
 
 ### Rule 1: Require Problem Details fields
 
@@ -956,7 +956,7 @@ Install the CLI:
 npm install -g @stoplight/spectral-cli
 ```
 
-Click [enterprise payment contract](../enterprise_payment_contract.yaml) to see full contract.
+Click [enterprise payment contract](../examples/openapi/enterprise_payment_contract.yaml) to see full contract.
 
 Then run:
 
