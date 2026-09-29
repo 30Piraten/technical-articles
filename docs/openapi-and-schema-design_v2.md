@@ -563,13 +563,9 @@ You can nevertheless choose to make these members mandatory as part of your own 
 
 This gives you a specific outcome:
 
-RFC 9457
-    │
-    └── defines the problem-details model
+- RFC 9457 ── defines the problem-details model
 
-Your API policy
-    │
-    └── can impose stricter requirements
+- Your API policy ── can impose stricter requirements
 
 Problem Details can also be extended with application-specific members:
 
