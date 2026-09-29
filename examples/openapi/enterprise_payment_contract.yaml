@@ -33,8 +33,8 @@ paths:
           content:
             application/problem+json:
               schema:
-               # $ref: '#/components/schemas/ProblemDetails'
-                $ref: '#/componente/schemas/Errors'
+                $ref: '#/components/schemas/ProblemDetails'
+                # $ref: '#/components/schemas/Errors'
 
         '422':
           description: >
@@ -186,8 +186,8 @@ components:
         - type
         - title
         - status
-        #- detail
-        #- instance
+        - detail
+        - instance
 
       properties:
 
