@@ -768,7 +768,7 @@ technical-articles/
         └── cicd_api_workflow.yaml
 ```
 
-Click [spectral ruleset](../files/.spectral.yaml) for complete rules.
+Click [spectral ruleset](../examples/openapi/.spectral.yaml) for complete rules.
 
 ### Rule 1: Require Problem Details fields
 
@@ -1043,10 +1043,12 @@ jobs:
 
       - name: Lint OpenAPI contract
         run: |
-          spectral lint enterprise_payment_contract.yaml \
-            --ruleset .spectral.yaml \
+          spectral lint \
+            examples/openapi/enterprise_payment_contract.yaml \
+            --ruleset examples/openapi/.spectral.yaml \
             --fail-severity=warn
 ```
+
 Running a pull request activates the spectral linter and we see an error like this:
 
 ```bash
