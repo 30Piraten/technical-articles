@@ -55,7 +55,6 @@ Consider a service that exposes a withdrawal operation:
 
 ```bash
 POST /accounts/005/withdraw
-
 ```
 
 A code-first implementation might define the request structure inside the application and expose the resulting endpoint.
@@ -78,7 +77,6 @@ schema:
   required:
     - amount
     - currency
-
 ```
 
 The contract now establishes several rules:
@@ -117,7 +115,6 @@ flowchart TD
     SchemaQuestion --> Application
     Application --> ApplicationQuestion
     ApplicationQuestion --> Domain
-
 ```
 
 The contract establishes the scope.
@@ -137,7 +134,6 @@ Consider an account resource:
   "balance": 50000,
   "currency": "ZAR"
 }
-
 ```
 
 This representation contains state that may influence what operations the client can perform.
@@ -147,7 +143,6 @@ If an API accepts a poorly defined scope:
 ```yaml
 schema:
   type: object
-
 ```
 
 the contract says very little about what makes up a valid instance.
@@ -179,7 +174,6 @@ required:
   - accountStatus
   - balance
   - currency
-
 ```
 
 Now the API contract describes a much smaller set of valid representations.
@@ -202,7 +196,6 @@ Account
 ├── Pending
 ├── Verified
 └── Suspended
-
 ```
 
 Each state may have different required properties.
@@ -283,7 +276,6 @@ components:
           required:
             - name
             - suspendedAt
-
 ```
 
 The model separates common properties from state-specific properties.
@@ -308,7 +300,6 @@ Account:
     - $ref: '#/components/schemas/Pending'
     - $ref: '#/components/schemas/Verified'
     - $ref: '#/components/schemas/Suspended'
-
 ```
 
 A payload should therefore match one and only one of those alternatives.
@@ -325,7 +316,6 @@ Verified:
     - $ref: '#/components/schemas/AccountBase'
     - type: object
       ...
-
 ```
 
 means that a verified account must satisfy both the base schema and the additional verified-account schema.
@@ -348,7 +338,6 @@ discriminator:
     PENDING: '#/components/schemas/Pending'
     VERIFIED: '#/components/schemas/Verified'
     SUSPENDED: '#/components/schemas/Suspended'
-
 ```
 
 the "status" property tells consumers which schema corresponds to the payload.
@@ -365,7 +354,6 @@ oneOf
 discriminator
   │
   └── helps identify the expected alternative
-
 ```
 
 A useful rule is:
@@ -392,7 +380,6 @@ Verified:
           format: date-time
       required:
         - verifiedAt
-
 ```
 
 The following representation is invalid:
@@ -401,7 +388,6 @@ The following representation is invalid:
 {
   "status": "VERIFIED"
 }
-
 ```
 
 because "verifiedAt" is required by the "Verified" schema.
@@ -413,7 +399,6 @@ This representation satisfies the schema:
   "status": "VERIFIED",
   "verifiedAt": "2026-09-22T10:30:00Z"
 }
-
 ```
 
 But schema validation still does not answer a very important question:
@@ -452,7 +437,6 @@ This specification:
   "currency": "ZAR",
   "metadata": {}
 }
-
 ```
 
 can be modeled using rules that describe what constitutes a valid instance.
@@ -496,7 +480,6 @@ flowchart TD
     ZA --> Payment
     EU --> Payment
     US --> Payment
-
 ```
 
 South Africa might return:
@@ -505,7 +488,6 @@ South Africa might return:
   "error": "payment_failed",
   "message": "payment provider unavailable"
 }
-
 ```
 
 Europe might return:
@@ -525,7 +507,6 @@ The US might return:
   "status": 503,
   "errorMessage": "temporary failure"
 }
-
 ```
 
 The HTTP status may communicate a similar outcome, but the response bodies expose three different contracts.
@@ -544,7 +525,6 @@ A problem response might look like:
   "detail": "The payment provider is temporarily unavailable.",
   "instance": "/payments/12345"
 }
-
 ```
 
 The standard members communicate different pieces of information:
@@ -579,7 +559,6 @@ Problem Details can also be extended with application-specific members:
   "region": "eu-west-1",
   "retryable": true
 }
-
 ```
 
 The additional members are application-specific extensions rather than standard RFC 9457 members.
@@ -599,7 +578,6 @@ flowchart TD
 
     Unsettled -->|"POST /settle"| Settled
     Unsettled -->|"failure"| Failed
-
 ```
 
 Your API contract can describe the representations of those states while the application logic controls whether a transition is permitted.
@@ -643,7 +621,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-
 ```
 
 The resulting flow looks like this:
@@ -684,7 +661,6 @@ flowchart TD
 
     StatusError --> ProblemType
     ProblemType --> ProblemDetails
-
 ```
 
 This separation gives each layer a clear responsibility:
@@ -701,7 +677,6 @@ flowchart TD
     Schema --> Application
     Application --> Domain
     Domain --> ProblemDetails
-
 ```
 
 This scope:
@@ -709,7 +684,6 @@ This scope:
 ```yaml
 status:
   const: SETTLED
-
 ```
 
 means that an instance represented as "SettledPayment" must contain the value "SETTLED".
@@ -732,13 +706,12 @@ with:
 
 A new endpoint could accidentally introduce:
 
-```yqml
+```yaml
 '409':
   content:
     application/json:
       schema:
         $ref: '#/components/schemas/Error'
-
 ```
 
 while the rest of the API uses:
@@ -749,7 +722,6 @@ while the rest of the API uses:
     application/problem+json:
       schema:
         $ref: '#/components/schemas/ProblemDetails'
-
 ```
 
 A reviewer may catch the inconsistency in a small API.
@@ -783,7 +755,6 @@ flowchart TD
     Rule --> Validation
     Validation --> Feedback
     Feedback --> CICD
-
 ```
 
 *This repository contains a Spectral ruleset:*
@@ -795,7 +766,6 @@ technical-articles/
 └── .github/
     └── workflows/
         └── cicd_api_workflow.yaml
-
 ```
 
 Click [spectral ruleset](../.spectral.yaml) for complete rules.
@@ -866,7 +836,6 @@ problem-details-required-fields:
           type: array
           contains:
             const: instance
-
 ```
 
 The rule has four valuable concepts:
@@ -906,7 +875,6 @@ error-response-problem-details:
 
     functionOptions:
       match: "^#/components/schemas/ProblemDetails$"
-
 ```
 
 The JSONPath expression determines what Spectral examines.
@@ -928,7 +896,6 @@ content
   └── application/problem+json
         └── schema
               └── $ref
-
 ```
 
 and requires that reference to resolve to:
@@ -961,7 +928,6 @@ problem-details-media-type:
   then:
     field: application/problem+json
     function: truthy
-
 ```
 
 The three rules now enforce different layers of the same policy:
@@ -975,7 +941,6 @@ flowchart TD
     Check2 --> Rule3["Rule 3"]
 
     Rule3 --> Check3["Do error responses use the correct media type?"]
-
 ```
 
 This is where your documentation takes the right shape.
@@ -989,7 +954,6 @@ Install the CLI:
 
 ```bash
 npm install -g @stoplight/spectral-cli
-
 ```
 
 Click [enterprise payment contract](../enterprise_payment_contract.yaml) to see full contract.
@@ -1000,7 +964,6 @@ Then run:
 spectral lint enterprise_payment_contract.yaml \
   --ruleset .spectral.yaml \
   --fail-severity=warn
-
 ```
 
 **This contract should complete without rule violations.**
@@ -1019,7 +982,6 @@ Run the linter again:
 spectral lint enterprise_payment_contract.yaml \
   --ruleset .spectral.yaml \
   --fail-severity=warn
-
 ```
 
 The result should contain errors similar to:
@@ -1035,7 +997,6 @@ All 4xx and 5xx responses must use
 - error  problem-details-required-fields
 ProblemDetails must define type, title,
 status, detail, and instance.
-
 ```
 
 Aside from the error message, the feedback loop is also important:
@@ -1053,7 +1014,6 @@ flowchart TD
     Violation --> Feedback
     Feedback --> Corrected
     Corrected --> Developer
-
 ```
 
 ## 12. Enforcing the Contract in CI/CD
@@ -1086,7 +1046,6 @@ jobs:
           spectral lint enterprise_payment_contract.yaml \
             --ruleset .spectral.yaml \
             --fail-severity=warn
-
 ```
 Running a pull request activates the spectral linter and we see an error like this:
 
@@ -1103,7 +1062,6 @@ Run spectral lint enterprise_payment_contract.yaml --ruleset .spectral.yaml --fa
 
  185:16  error  problem-details-required-fields
           ProblemDetails must define type, title, status, detail, and instance.
-
 ```
 See [failed PR](https://github.com/30Piraten/technical-articles/pull/3) for more information.
 
@@ -1137,7 +1095,6 @@ flowchart TD
 
     Pass --> Continue
     Fail --> Fix
-
 ```
 
 GitHub Actions itself does not automatically prevent a merge. The rules defined produces a status check. Repository branch-protection rules can then require that check to pass before a pull request can be merged.
@@ -1152,7 +1109,6 @@ Developer boundary
 Repository boundary
     │
     └── Automated PR validation
-
 ```
 
 ## 13. Why This Matters
@@ -1175,7 +1131,6 @@ flowchart TD
     Domain --> Errors
     Errors --> Spectral
     Spectral --> CICD
-
 ```
 
 Each layer addresses a different problem.
