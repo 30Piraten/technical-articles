@@ -484,7 +484,8 @@ flowchart TD
 
 South Africa might return:
 
-```json{
+```json
+{
   "error": "payment_failed",
   "message": "payment provider unavailable"
 }
@@ -496,7 +497,6 @@ Europe might return:
 {
   "code": "SERVICE_PROVIDER_DOWN",
   "reason": "upstream unavailable"
-
 }
 ```
 
