@@ -757,17 +757,6 @@ flowchart TD
     Feedback --> CICD
 ```
 
-*This repository contains a Spectral ruleset:*
-
-```bash
-technical-articles/
-├── enterprise_payment_contract.yaml
-├── .spectral.yaml
-└── .github/
-    └── workflows/
-        └── cicd_api_workflow.yaml
-```
-
 Click [spectral ruleset](../examples/openapi/.spectral.yaml) for complete rules.
 
 ### Rule 1: Require Problem Details fields
