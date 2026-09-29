@@ -875,17 +875,14 @@ problem-details-required-fields:
 
 The rule has four valuable concepts:
 
-```mermaid
-flowchart TD
-    Given["given"] --> Where["WHERE does the rule apply?"]
-    Where --> Then["then"]
-    Then --> What["WHAT must be true?"]
-    What --> Function["function"]
-    Function --> How["HOW is the condition evaluated?"]
-    How --> Severity["severity"]
-    Severity --> Failure["WHAT happens when it fails?"]
+- given: WHERE does the rule apply?
 
-```
+- then: WHAT must be true?
+  
+- function: HOW is the condition evaluated?
+  
+- severity: WHAT happens when it fails?
+
 
 ### Rule 2: Enforce the Error Schema Across the API
 
