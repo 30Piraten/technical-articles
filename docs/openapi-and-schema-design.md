@@ -950,9 +950,9 @@ Click [enterprise payment contract](../examples/openapi/enterprise_payment_contr
 Then run:
 
 ```bash
-spectral lint enterprise_payment_contract.yaml \
-  --ruleset .spectral.yaml \
-  --fail-severity=warn
+spectral lint examples/openapi/enterprise_payment_contract.yaml \
+   --ruleset examples/openapi/.spectral.yaml \
+   --fail-severity=warn
 ```
 
 **This contract should complete without rule violations.**
@@ -968,9 +968,9 @@ instead of:
 Run the linter again:
 
 ```bash
-spectral lint enterprise_payment_contract.yaml \
-  --ruleset .spectral.yaml \
-  --fail-severity=warn
+spectral lint examples/openapi/enterprise_payment_contract.yaml \
+   --ruleset examples/openapi/.spectral.yaml \
+   --fail-severity=warn
 ```
 
 The result should contain errors similar to:
