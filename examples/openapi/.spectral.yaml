@@ -2,7 +2,7 @@ rules:
 
   # ============================================================
   # RULE 1
-  # Ensure the canonical ProblemDetails schema contains the
+  # Ensure the ProblemDetails schema contains the
   # required fields used by this API's RFC 9457 representation.
   # ============================================================
 
@@ -63,7 +63,7 @@ rules:
 
   # ============================================================
   # RULE 2
-  # Every 4xx/5xx response must reference the canonical
+  # Every 4xx/5xx response must reference the 
   # ProblemDetails schema.
   # ============================================================
 
