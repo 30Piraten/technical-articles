@@ -1054,7 +1054,6 @@ Run spectral lint enterprise_payment_contract.yaml --ruleset .spectral.yaml --fa
  185:16  error  problem-details-required-fields
           ProblemDetails must define type, title, status, detail, and instance.
 ```
-See [failed PR](https://github.com/30Piraten/technical-articles/pull/3) for more information.
 
 
 This creates another valid restriction:
